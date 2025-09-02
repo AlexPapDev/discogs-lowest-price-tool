@@ -2,12 +2,13 @@
   import { onMount } from "svelte";
   import type { DiscogsList } from "$lib/types";
   let username = $state('');
-  let lists: DiscogsList[] = [];
-  let loading: boolean = true;
+  let lists: DiscogsList[] = $state([]);
+  let loading: boolean = $state(false);
   let error: string | null = null;
   const url = 'https://discogs-lowest-price-tool-node.onrender.com' //'http://localhost:3000'
-  onMount(async () => {
+  async function search(){
     try {
+      loading = true
       const res = await fetch(`${url}/api/get-lists?username=${username}`);
       if (!res.ok) throw new Error("Failed to fetch lists");
       debugger
@@ -17,10 +18,13 @@
     } finally {
       loading = false;
     }
-  });
+  }
 </script>
 
-<input value={username} />
+<div>
+  <input type="text" placeholder="Enter Discogs username" bind:value={username} />
+  <button onclick={search}>Search</button>
+</div>
 <h1 class="text-xl font-bold mb-4">Discogs Lists</h1>
 
 {#if loading}
