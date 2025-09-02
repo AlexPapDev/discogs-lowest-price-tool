@@ -7,13 +7,13 @@
   let loading: boolean = true;
   let error: string | null = null;
   let itemMap: Map<string, DiscogsListItem> = new Map()
-
+  const url = 'https://discogs-lowest-price-tool-node.onrender.com' //'http://localhost:3000'
   $: listId = $page.params.id;
 
   onMount(async () => {
     try {
         // Fetch list items
-        const listRes = await fetch(`http://localhost:3000/api/get-list-info?listId=${listId}`);
+        const listRes = await fetch(`${url}/api/get-list-info?listId=${listId}`);
         if (!listRes.ok) throw new Error("Failed to fetch list items");
         const listItems = await listRes.json();
         
@@ -21,7 +21,7 @@
         const releaseIds = listItems.map((item: DiscogsListItem) => item.id).filter(Boolean);
 
         // Fetch lowest prices for all releases
-        const pricesRes = await fetch('http://localhost:3000/api/get-lowest-prices', {
+        const pricesRes = await fetch(`${url}/api/get-lowest-prices`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

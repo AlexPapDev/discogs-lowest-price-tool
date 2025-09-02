@@ -5,10 +5,10 @@
   let lists: DiscogsList[] = [];
   let loading: boolean = true;
   let error: string | null = null;
-
+  const url = 'https://discogs-lowest-price-tool-node.onrender.com' //'http://localhost:3000'
   onMount(async () => {
     try {
-      const res = await fetch(`http://localhost:3000/api/get-lists?username=${username}`);
+      const res = await fetch(`${url}/api/get-lists?username=${username}`);
       if (!res.ok) throw new Error("Failed to fetch lists");
       debugger
       lists = (await res.json()) as DiscogsList[];

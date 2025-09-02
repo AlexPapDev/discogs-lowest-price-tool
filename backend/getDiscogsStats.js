@@ -130,7 +130,7 @@ async function getListInfo(listId) {
       console.error(`Error: Discogs API returned status code ${response.status}`);
       return null;
     }
-
+    
     const data = await response.json();
     return data;
   } catch (error) {

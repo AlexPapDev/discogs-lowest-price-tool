@@ -78,14 +78,12 @@ app.get('/api/get-list-info', async (req, res) => {
   try {
     let id = listId;
 
-
-    // If releaseId is not provided, use artist and title to find it
     if (!id) {
       return res.status(400).json({ error: 'Please provide either a list ID.' });
     }
     const result = await getListInfo(listId);
-    console.log(result.items)
-    res.json(result.items);
+
+    res.json(result);
   } catch (e) {
     console.log(e)
   }
