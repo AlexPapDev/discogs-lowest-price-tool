@@ -1,5 +1,5 @@
 import express from 'express'
-import { getReleaseIdByTitle, getMarketplaceStats, getListInfo } from './getDiscogsStats.js'
+import { getReleaseIdByTitle, getMarketplaceStats, getListInfo, getLists } from './getDiscogsStats.js'
 
 const app = express();
 const port = 3000;
@@ -46,6 +46,32 @@ app.get('/api/discogs-stats', async (req, res) => {
   }
 });
 
+app.post('/api/get-lowest-prices', async (req, res) => {
+  const { releaseIds, currency = 'EUR' } = req.body;
+
+  if (!Array.isArray(releaseIds)) {
+    return res.status(400).json({ error: 'releaseIds must be an array.' });
+  }
+
+  try {
+    const prices = {};
+    // Use Promise.all to fetch all prices in parallel
+    await Promise.all(
+      releaseIds.map(async (releaseId) => {
+        const stats = await getMarketplaceStats(releaseId, currency);
+        if (stats && stats.lowest_price) {
+          prices[releaseId] = stats.lowest_price;
+        }
+      })
+    );
+    res.json(prices);
+  } catch (e) {
+    console.error('API Error:', e);
+    res.status(500).json({ error: 'An unexpected error occurred.' });
+  }
+});
+
+
 app.get('/api/get-list-info', async (req, res) => {
   const { listId } = req.query;
 
@@ -57,12 +83,27 @@ app.get('/api/get-list-info', async (req, res) => {
     if (!id) {
       return res.status(400).json({ error: 'Please provide either a list ID.' });
     }
-    const { items } = await getListInfo(listId);
-    res.json(items);
+    const result = await getListInfo(listId);
+    console.log(result.items)
+    res.json(result.items);
   } catch (e) {
     console.log(e)
   }
 })
+
+app.get('/api/get-lists', async (req, res) => {
+  const { username } = req.query
+  console.log('username', username)
+  try {
+    // Example hardcoded lists – replace with real Discogs API call if needed
+    const result = await getLists(username)
+    res.json(result.lists);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Failed to fetch lists" });
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Discogs stats server listening at http://localhost:${port}`);

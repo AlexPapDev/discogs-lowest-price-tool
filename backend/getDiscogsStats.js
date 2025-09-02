@@ -139,9 +139,40 @@ async function getListInfo(listId) {
   }
 }
 
+async function getLists(username) {
+  if (!username) {
+    console.error('Error: A username is required.');
+    return null;
+  }
+  const url = `https://api.discogs.com/users/${username}/lists`;
+
+   try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'User-Agent': USER_AGENT,
+        'Accept': 'application/json',
+        // Add the Authorization header with the personal access token
+        'Authorization': `Discogs token=${DISCOGS_TOKEN}`,
+      },
+    });
+    if (!response.ok) {
+      console.error(`Error: Discogs API returned status code ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('An error occurred while fetching lists:', error.message);
+    return null;
+  }
+}
+
 // Export the functions to be used in server.js
 export {
   getMarketplaceStats,
   getReleaseIdByTitle,
   getListInfo,
+  getLists,
 };
